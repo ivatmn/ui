@@ -22,12 +22,12 @@ DB_CONFIG = {
 
 db = PooledPostgresqlExtDatabase(**DB_CONFIG)
 
-
 def create_all_tables():
     for cls in sys.modules[__name__].__dict__.values():
         if hasattr(cls, '_meta') and inspect.isclass(cls) and issubclass(cls, Model):
             if cls is not BaseModel:
                 cls.create_table()
+
 
 class BaseModel(Model):
     class Meta:
@@ -35,11 +35,21 @@ class BaseModel(Model):
 
 
 class Office(BaseModel):
-    code = TextField(unique=True)
-    name = TextField()
-    tags = TextField(null=True)
-    comment = TextField(null=True)
+    code = CharField(unique=True)
+    name = CharField()
 
     class Meta:
         db_table = 'k_offices'
+        schema = 'kernel'
+
+
+class User(BaseModel):
+    office = ForeignKeyField(Office)
+    login = CharField(unique=True)
+    passord = CharField(max_length=255)
+    is_enable = BooleanField(default=True)
+    
+
+    class Meta:
+        db_table = 'k_users'
         schema = 'kernel'
